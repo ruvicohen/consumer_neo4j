@@ -1,4 +1,5 @@
-from pydantic import BaseModel
+from dataclasses import dataclass
 
-class AttackType(BaseModel):
+@dataclass
+class AttackType:
     name: str

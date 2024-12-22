@@ -1,6 +1,7 @@
-from pydantic import BaseModel
 from typing import Optional
+from dataclasses import dataclass
 
-class Location(BaseModel):
+@dataclass
+class Location:
     latitude: Optional[float]
     longitude: Optional[float]

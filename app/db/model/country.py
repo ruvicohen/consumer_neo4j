@@ -1,4 +1,5 @@
-from pydantic import BaseModel
+from dataclasses import dataclass
 
-class Country(BaseModel):
+@dataclass
+class Country:
     name: str

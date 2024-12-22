@@ -1,8 +1,9 @@
 from typing import Optional
 
-from pydantic import BaseModel
+from dataclasses import dataclass
 
-class Date(BaseModel):
+@dataclass
+class Date:
     year: Optional[int]
     month: Optional[int]
     day: Optional[int]

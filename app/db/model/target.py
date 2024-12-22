@@ -1,4 +1,5 @@
-from pydantic import BaseModel
+from dataclasses import dataclass
 
-class Target(BaseModel):
+@dataclass
+class Target:
     name: str

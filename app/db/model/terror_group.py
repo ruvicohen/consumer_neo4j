@@ -1,4 +1,5 @@
-from pydantic import BaseModel
+from dataclasses import dataclass
 
-class TerrorGroup(BaseModel):
+@dataclass
+class TerrorGroup:
     name: str

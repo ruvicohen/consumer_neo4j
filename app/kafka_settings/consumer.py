@@ -3,6 +3,8 @@ import os
 from dotenv import load_dotenv
 from kafka import KafkaConsumer
 
+from app.service.event_service import convert_to_mongo_compatible
+
 load_dotenv(verbose=True)
 
 bootstrap_servers = os.environ["BOOTSTRAP_SERVERS"]
@@ -15,4 +17,10 @@ def consume_topic(topic, process_message):
     )
     for message in consumer:
         for event in message.value:
-            process_message(event)
+            event = convert_to_mongo_compatible(event)
+
+            if event:
+                process_message(event)
+                print("Validated Event: ")
+            else:
+                print("Event validation failed.")

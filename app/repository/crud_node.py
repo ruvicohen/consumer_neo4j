@@ -1,7 +1,7 @@
 from dataclasses import asdict
 from operator import itemgetter
 from typing import Any, Dict, TypeVar, List
-from returns.maybe import Maybe
+from returns.maybe import Maybe, Nothing
 from toolz import curry
 import toolz as t
 from app.db.database_neo4j import driver
@@ -11,6 +11,31 @@ T = TypeVar('T')
 @curry
 def create_node(node_type: str, object: T) -> Maybe:
     object_as_dict = asdict(object)
+    if any(value is None for value in object_as_dict.values()):
+        print(f"Skipping node creation due to null values: {object_as_dict}")
+        return Nothing
+    with driver.session() as session:
+        query = f"""
+        MERGE (n:{node_type} {{ {', '.join([f'{k}: ${k}' for k in object_as_dict])} }})
+        RETURN n"""
+
+        params = object_as_dict
+
+        res = session.run(query, params).single()
+
+        return (
+            Maybe.from_optional(res.get("n")).map(lambda n: {
+                "id": n.element_id.split(":")[2],
+                "properties": dict(n)
+            })
+        )
+
+@curry
+def create_node1(node_type: str, object: T) -> Maybe:
+    object_as_dict = asdict(object)
+    if any(value is None for value in object_as_dict.values()):
+        print(f"Skipping node creation due to null values: {object_as_dict}")
+        return Nothing
     with driver.session() as session:
         query = f"""
         CREATE (n:{node_type} {{ {', '.join([f'{k}: ${k}' for k in object_as_dict])} }})
@@ -95,7 +120,10 @@ def delete_node(node_type: str, node_id: int) -> Dict[str, Any]:
 @curry
 def create_relationship(relationship_type: str,source_type: str,target_type: str,source_node_id: int, target_node_id: int,
                         relationship_props: Dict[str, Any] = None) -> Maybe:
+    print(source_node_id)
+    print(target_node_id)
     with driver.session() as session:
+        print(1)
         props_clause = ""
         if relationship_props:
             props_clause = f"{{ {', '.join([f'{k}: ${k}' for k in relationship_props.keys()])} }}"
@@ -105,8 +133,11 @@ def create_relationship(relationship_type: str,source_type: str,target_type: str
             MERGE (s)-[r:{relationship_type} {props_clause}]->(t)
             RETURN r
             """
+        print(2)
         params = {"source_node_id": source_node_id, "target_node_id": target_node_id, **(relationship_props or {})}
+        print(3)
         res = session.run(query, params).single()
+        print(4)
         return Maybe.from_optional(res).map(itemgetter('r')).map(lambda x: dict(x))
 
 @curry
