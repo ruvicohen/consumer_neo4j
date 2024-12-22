@@ -27,16 +27,6 @@ def create_node(node_type: str, object: T) -> Maybe:
             })
         )
 
-
-def create_nodes(label, property_name, values):
-    with driver.session() as session:
-        query = f"""
-        UNWIND $values AS value
-        MERGE (n:{label} {{{property_name}: value}})
-        """
-        execute_query(query, {"values": values})
-
-
 @curry
 def get_all_nodes(node_type: str) -> List[T]:
     with driver.session() as session:

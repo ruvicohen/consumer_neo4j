@@ -14,6 +14,5 @@ def consume_topic(topic, process_message):
         value_deserializer=lambda x: json.loads(x.decode('utf-8'))
     )
     for message in consumer:
-        print(message)
-        for tweet_data in message.value:
-            process_message(tweet_data)
+        for event in message.value:
+            process_message(event)
