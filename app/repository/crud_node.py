@@ -6,7 +6,8 @@ from toolz import curry
 import toolz as t
 from app.db.database_neo4j import driver
 
-T = TypeVar('T')
+T = TypeVar("T")
+
 
 @curry
 def create_node(node_type: str, object: T) -> Maybe:
@@ -23,12 +24,10 @@ def create_node(node_type: str, object: T) -> Maybe:
 
         res = session.run(query, params).single()
 
-        return (
-            Maybe.from_optional(res.get("n")).map(lambda n: {
-                "id": n.element_id.split(":")[2],
-                "properties": dict(n)
-            })
+        return Maybe.from_optional(res.get("n")).map(
+            lambda n: {"id": n.element_id.split(":")[2], "properties": dict(n)}
         )
+
 
 @curry
 def create_node1(node_type: str, object: T) -> Maybe:
@@ -45,12 +44,10 @@ def create_node1(node_type: str, object: T) -> Maybe:
 
         res = session.run(query, params).single()
 
-        return (
-            Maybe.from_optional(res.get("n")).map(lambda n: {
-                "id": n.element_id.split(":")[2],
-                "properties": dict(n)
-            })
+        return Maybe.from_optional(res.get("n")).map(
+            lambda n: {"id": n.element_id.split(":")[2], "properties": dict(n)}
         )
+
 
 @curry
 def get_all_nodes(node_type: str) -> List[T]:
@@ -62,11 +59,8 @@ def get_all_nodes(node_type: str) -> List[T]:
 
         res = session.run(query).data()
 
-        return t.pipe(
-            res,
-            t.partial(t.pluck, "n"),
-            list
-        )
+        return t.pipe(res, t.partial(t.pluck, "n"), list)
+
 
 @curry
 def get_node_by_id(node_type: str, node_id: int) -> List[T]:
@@ -80,11 +74,8 @@ def get_node_by_id(node_type: str, node_id: int) -> List[T]:
 
         res = session.run(query, params).data()
 
-        return t.pipe(
-            res,
-            t.partial(t.pluck, "n"),
-            list
-        )
+        return t.pipe(res, t.partial(t.pluck, "n"), list)
+
 
 @curry
 def update_node(node_type: str, node_id: int, node: T) -> Maybe:
@@ -103,6 +94,7 @@ def update_node(node_type: str, node_id: int, node: T) -> Maybe:
         res = session.run(query, params).single()
         return Maybe.from_optional(res.get("n")).map(lambda n: dict(n))
 
+
 @curry
 def delete_node(node_type: str, node_id: int) -> Dict[str, Any]:
     with driver.session() as session:
@@ -118,15 +110,23 @@ def delete_node(node_type: str, node_id: int) -> Dict[str, Any]:
 
 
 @curry
-def create_relationship(relationship_type: str,source_type: str,target_type: str,source_node_id: int, target_node_id: int,
-                        relationship_props: Dict[str, Any] = None) -> Maybe:
+def create_relationship(
+    relationship_type: str,
+    source_type: str,
+    target_type: str,
+    source_node_id: int,
+    target_node_id: int,
+    relationship_props: Dict[str, Any] = None,
+) -> Maybe:
     print(source_node_id)
     print(target_node_id)
     with driver.session() as session:
         print(1)
         props_clause = ""
         if relationship_props:
-            props_clause = f"{{ {', '.join([f'{k}: ${k}' for k in relationship_props.keys()])} }}"
+            props_clause = (
+                f"{{ {', '.join([f'{k}: ${k}' for k in relationship_props.keys()])} }}"
+            )
         query = f"""
             MATCH (s:{source_type}) WHERE id(s) = $source_node_id
             MATCH (t:{target_type}) WHERE id(t) = $target_node_id
@@ -134,30 +134,53 @@ def create_relationship(relationship_type: str,source_type: str,target_type: str
             RETURN r
             """
         print(2)
-        params = {"source_node_id": source_node_id, "target_node_id": target_node_id, **(relationship_props or {})}
+        params = {
+            "source_node_id": source_node_id,
+            "target_node_id": target_node_id,
+            **(relationship_props or {}),
+        }
         print(3)
         res = session.run(query, params).single()
         print(4)
-        return Maybe.from_optional(res).map(itemgetter('r')).map(lambda x: dict(x))
+        return Maybe.from_optional(res).map(itemgetter("r")).map(lambda x: dict(x))
+
 
 @curry
-def update_relationship(relationship_type: str ,source_type: str,target_type: str,source_node_id: int, target_node_id: int,relationship_props):
+def update_relationship(
+    relationship_type: str,
+    source_type: str,
+    target_type: str,
+    source_node_id: int,
+    target_node_id: int,
+    relationship_props,
+):
     with driver.session() as session:
-        props_clause = f"{{ {', '.join([f'{k}: ${k}' for k in relationship_props.keys()])} }}"
+        props_clause = (
+            f"{{ {', '.join([f'{k}: ${k}' for k in relationship_props.keys()])} }}"
+        )
         query = f"""
             MATCH (s:{source_type}) WHERE id(s) = $source_node_id
             MATCH (t:{target_type}) WHERE id(t) = $target_node_id
             MERGE (s)-[r:{relationship_type} {props_clause}]->(t)
             RETURN r
             """
-        params = {"source_node_id": source_node_id, "target_node_id": target_node_id, **(relationship_props or {})}
+        params = {
+            "source_node_id": source_node_id,
+            "target_node_id": target_node_id,
+            **(relationship_props or {}),
+        }
         res = session.run(query, params).single()
-        return Maybe.from_optional(res).map(itemgetter('r')).map(lambda x: dict(x))
+        return Maybe.from_optional(res).map(itemgetter("r")).map(lambda x: dict(x))
 
 
 @curry
-def delete_relationship(relationship_type: str, source_type: str, target_type: str,
-                        source_node_id: int, target_node_id: int) -> Maybe:
+def delete_relationship(
+    relationship_type: str,
+    source_type: str,
+    target_type: str,
+    source_node_id: int,
+    target_node_id: int,
+) -> Maybe:
     with driver.session() as session:
         query = f"""
         MATCH (s:{source_type})-[r:{relationship_type}]->(t:{target_type})
@@ -170,4 +193,6 @@ def delete_relationship(relationship_type: str, source_type: str, target_type: s
 
         res = session.run(query, params).single()
 
-        return Maybe.from_optional(res).map(lambda x: {"deletedCount": x["deletedCount"]})
+        return Maybe.from_optional(res).map(
+            lambda x: {"deletedCount": x["deletedCount"]}
+        )

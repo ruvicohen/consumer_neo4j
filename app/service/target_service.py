@@ -4,6 +4,7 @@ from app.db.model.target import Target
 from app.repository.event_repository import relate_event_to_target
 from app.repository.target_repository import create_target
 
+
 def create_targets_nodes(targets: List, event_id):
     print(200)
     print(targets)

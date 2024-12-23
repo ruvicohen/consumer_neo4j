@@ -7,5 +7,5 @@ load_dotenv(verbose=True)
 
 topic = os.environ["MONGO_TOPIC"]
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     consume_topic(topic, process_event)

@@ -1,6 +1,3 @@
-from app.db.model.city import City
-from app.db.model.country import Country
-from app.repository.country_repository import create_country
 from app.repository.crud_node import create_node, create_relationship
 
 create_city = create_node("city")
