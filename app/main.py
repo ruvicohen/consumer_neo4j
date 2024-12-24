@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 
 load_dotenv(verbose=True)
 
-topic = os.environ["MONGO_TOPIC"]
+topic = os.environ["DB_TOPIC"]
 
 if __name__ == "__main__":
     consume_topic(topic, process_event)

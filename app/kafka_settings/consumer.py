@@ -17,6 +17,7 @@ def consume_topic(topic, process_message):
         value_deserializer=lambda x: json.loads(x.decode("utf-8")),
     )
     for message in consumer:
+        print(1)
         for event in message.value:
             event = convert_to_mongo_compatible(event)
 
