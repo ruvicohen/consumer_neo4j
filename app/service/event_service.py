@@ -8,13 +8,13 @@ def is_nan(value):
     return value is None or (isinstance(value, float) and np.isnan(value))
 
 
-def convert_to_mongo_compatible(data):
+def convert_to_compatible(data):
     if isinstance(data, dict):
-        return {key: convert_to_mongo_compatible(value) for key, value in data.items()}
+        return {key: convert_to_compatible(value) for key, value in data.items()}
     elif isinstance(data, list):
-        return [convert_to_mongo_compatible(item) for item in data]
+        return [convert_to_compatible(item) for item in data]
     elif isinstance(data, (Casualties, Location, Date)):
-        return convert_to_mongo_compatible(data.dict())
+        return convert_to_compatible(data.dict())
     elif is_nan(data):
         return None
     return data

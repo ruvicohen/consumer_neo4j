@@ -1,7 +1,8 @@
 import os
 from app.kafka_settings.consumer import consume_topic
-from app.service.process_service import process_event
 from dotenv import load_dotenv
+
+from app.service.processing_load import process_event
 
 load_dotenv(verbose=True)
 
